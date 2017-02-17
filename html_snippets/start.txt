@@ -1,0 +1,24 @@
+<div class="screen screen-start" id="start">
+  <header>
+    <h1>Tic Tac Toe</h1>
+    <a href="#" class="button">Start game</a>
+  </header>
+</div>
+/*function MyCounter(){
+    this.turn = 0;
+    var click = [];
+
+
+     this.addClick = function(event) {
+       this.turn ++;
+       var squares = document.getElementsByClassName('box')[0];
+       for( var i = 0; i < squares.length; i++) {
+          squares[i].setAttribute("ID", [i]);
+          squares[i].addEventListener("click", function() { click.push(this.getAttribute('ID')); click.forEach(function (x) { console.log(x);})}, false);
+      }
+     };
+  }
+
+  var c = new MyCounter();
+
+document.body.addEventListener('click', function(){ c.addClick()}, false);*/
