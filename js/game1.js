@@ -15,7 +15,10 @@
     //This is the game constructor that contains the intial variables I will be using in my methods.
     function Game() {
         //Array that contains my players
-        this.players = [];
+        this.players = {};
+        this.name = null;
+        this.side;
+        this.score = [];
         //This count keeps track of whose turn it is by incrementing by one at every turn.
         this.turn = 0;
         //winSets contains all the winning combinations
@@ -35,11 +38,6 @@
         this.array2 = [];
     }
 
-    function Player(side) {
-        this.name = null;
-        this.side;
-        this.score = [];
-    }
 
 //This method will take care of the different screens, Start, Winning and Tie. 
 //I'm passing four arguments for each screen.
@@ -63,7 +61,13 @@
         }
         //The link button
         var startLink = document.createElement("A");
-        startLink.setAttribute('href', buttonLink);
+        if (buttonLink === "reload") {
+        startLink.setAttribute('onClick', 'window.location.reload()');
+        } else {
+            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName();}, false);
+            startLink.setAttribute('href', buttonLink);
+
+        }
         startLink.setAttribute('class', 'button');
         startLink.textContent = linkText;
         header.appendChild(startLink);
@@ -71,7 +75,7 @@
         //Append the main DIV to the body
         board.appendChild(screenDiv);
         //On button click, remove the screen
-        startLink.addEventListener("click", function() { board.removeChild(screenDiv);}, false);
+       
       }
 
     //Update the board at every move
@@ -121,12 +125,37 @@
                 playerScore.push(parseFloat(event.target.getAttribute('ID')));
                 //On every move, perform a winCheck.
                 game.winCheck(playerScore);
+                console.log(game.turn);
             }
           }
+          game.updateBoard();
+          if(game.players.player2 == "COMPUTER" && game.turn % 2 === 0){
+              
+          var availableSpaces = document.querySelector('.box:not(.box-filled-1):not(.box-filled-2)');
+          var randomIndex = Math.round(Math.random() * ((availableSpaces.length - 1) - 0) + 0);
+          var space = availableSpaces[randomIndex];
+          console.log(availableSpaces);
+          console.log(randomIndex);
+          console.log(space);
+          
+         // var clickBlocker = body.find('.click-blocker');
+
+          setTimeout(function(){
+            //  space.click();
+            /*space.style.backgroundImage = 'url(img/x.svg)';
+            space.classList.add('box-filled-2');*/
+            
+           // clickBlocker.hide();
+          }, 3000);
+          return;
+
+         // clickBlocker.show();
+        }
         };
 
 //This property determines if a player holds a win
         Game.prototype.winCheck = function(playerScore) {
+
             //Loop through the winning combinations.
             for (var i = 0; i < game.winSets.length; i++) {
 
@@ -140,16 +169,17 @@
                     if (inScore === -1) {
                         break;
                     }
-
                     // if the loop runs for the full length of a win set, a player possesses a win
                     if (j === winSet.length -1) {
-                  return game.UI("screen screen-win screen-win-" + (game.getPlayer() === 1? "one": "two"), "New Game", "#", "Winner");
-                    }
-
-                }
+                  return game.UI("screen screen-win screen-win-" + (game.getPlayer() === 1? "one": "two"), "New Game", "reload", game.getCurrentPlayersName() + " wins!");
+              
+                       }
+                 }
             }
-
-
+               //If the turn counter is superior to 9, the game is automatically a draw
+              if (game.turn > 9){
+                return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
+                }
         };
 
     // helper method for determining player turns
@@ -170,18 +200,39 @@
     };
 
 
+     Game.prototype.getPlayersName = function() {
+     do {
+      var playerName1 = prompt("What's player's one name?");
+       game.players.player1 = playerName1;
+     } while (!game.players.player1);
+
+     do {
+      var playerName2 = prompt("What's player's two name? Type 'COMPUTER' to play against the computer");
+       game.players.player2 = playerName2;
+     } while (!game.players.player2);
+
+       player1.textContent = game.players.player1;
+       player2.textContent = game.players.player2;
+
+        console.log(game.players);
+       }
+
+
+    Game.prototype.getCurrentPlayersName = function() {
+       return game.getPlayer() == 1? game.players.player1 : game.players.player2;
+    }
+
+
     game = new Game;
-    game.players.push(new Player('o'));
-    game.players.push(new Player('x'));
-    
-    game.UI("screen screen-start", "Start Game", "#");
+    /*game.players.push(new Player('o'));
+    game.players.push(new Player('x'));*/
+
+    game.UI("screen screen-start", "Start Game", "#", "");
+
 
 
     board.addEventListener("click", function() {
         game.updateBoard()
-        if (game.turn > 9) {
-          game.UI("screen screen-win-tie", "New Game", "#", "It's a draw");
-        }
     }, false);
 
 
@@ -193,11 +244,4 @@
         squares[i].addEventListener("mouseenter", game.spaceAction, false);
         squares[i].addEventListener("mouseleave", game.spaceAction, false);
     }
-    /*  boxes.addEventListener("mouseenter", game.spaceAction, false);
-      boxes.addEventListener("mouseleave", game.spaceAction, false);
-      boxes.addEventListener("click", game.spaceAction, false);*/
-
-
-
-
 })();
