@@ -1,5 +1,5 @@
 'use strict';
-//Unsing the module pattern so my variables are not available in t eglobal scope
+//Using the module pattern so my variables are not available in the global scope
 (function() {
     //Initial variables
     var game;
@@ -84,6 +84,15 @@
         this.turn++;
         //Getting the current player's indicator
         var playerIndicator = document.getElementById('player' + this.getPlayer());
+
+             if(game.players.player2 == "COMPUTER" && this.turn % 2 === 0){
+            game.computer();
+            }
+                     //If the turn counter is superior to 9, the game is automatically a draw
+              if (game.turn > 10){
+                return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
+                }
+
         
         //Add and removes the classes on the indicator depending on whose turn it is.
         if (this.getPlayer() === 1) {
@@ -123,15 +132,19 @@
                 event.target.classList.add('box-filled-' + game.getPlayer());
                 //Push the squares ID in the right array.
                 playerScore.push(parseFloat(event.target.getAttribute('ID')));
+
                 //On every move, perform a winCheck.
                 game.winCheck(playerScore);
                 console.log(game.turn);
             }
           }
-          game.updateBoard();
-          if(game.players.player2 == "COMPUTER" && game.turn % 2 === 0){
-              
-          var availableSpaces = document.querySelector('.box:not(.box-filled-1):not(.box-filled-2)');
+     
+
+        };
+
+        Game.prototype.computer = function() {
+         board.classList.add("overlay");
+          var availableSpaces = document.querySelectorAll('.box:not(.box-filled-1):not(.box-filled-2)');
           var randomIndex = Math.round(Math.random() * ((availableSpaces.length - 1) - 0) + 0);
           var space = availableSpaces[randomIndex];
           console.log(availableSpaces);
@@ -141,18 +154,20 @@
          // var clickBlocker = body.find('.click-blocker');
 
           setTimeout(function(){
-            //  space.click();
+             
+             space.click();
             /*space.style.backgroundImage = 'url(img/x.svg)';
             space.classList.add('box-filled-2');*/
             
            // clickBlocker.hide();
-          }, 3000);
-          return;
-
+          }, 1000);
+         
+          
+           board.classList.remove("overlay");
          // clickBlocker.show();
-        }
-        };
+        
 
+        }
 //This property determines if a player holds a win
         Game.prototype.winCheck = function(playerScore) {
 
@@ -176,10 +191,8 @@
                        }
                  }
             }
-               //If the turn counter is superior to 9, the game is automatically a draw
-              if (game.turn > 9){
-                return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
-                }
+      
+       
         };
 
     // helper method for determining player turns
@@ -231,8 +244,9 @@
 
 
 
-    board.addEventListener("click", function() {
-        game.updateBoard()
+   board.addEventListener("click", function() {
+        game.updateBoard();
+        console.log(game.turn);
     }, false);
 
 
