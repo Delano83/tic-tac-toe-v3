@@ -138,12 +138,3 @@ h1 {
       background-color: #3688C3;
       background-image: url(../img/x.svg); }
 
-.overlay {
-     z-index: 9999;
-    background-color: rgba(1, 1, 1, 0.7);
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    right: 0;
-    top: 0;
-}

@@ -17,7 +17,7 @@
         //Array that contains my players
         this.players = {};
         this.name = null;
-        this.side;
+        this.winner = null;
         this.score = [];
         //This count keeps track of whose turn it is by incrementing by one at every turn.
         this.turn = 0;
@@ -88,8 +88,8 @@
              if(game.players.player2 == "COMPUTER" && this.turn % 2 === 0){
             game.computer();
             }
-                     //If the turn counter is superior to 9, the game is automatically a draw
-              if (game.turn > 10){
+                     //If the turn counter is superior to 9 and there is no winner, the game is a draw so we return the 'It's a draw screen'
+              if (game.turn > 9 && game.winner === null){
                 return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
                 }
 
@@ -150,7 +150,7 @@
           console.log(availableSpaces);
           console.log(randomIndex);
           console.log(space);
-          
+                   
          // var clickBlocker = body.find('.click-blocker');
 
           setTimeout(function(){
@@ -160,10 +160,11 @@
             space.classList.add('box-filled-2');*/
             
            // clickBlocker.hide();
-          }, 1000);
+            squares.onselectstart = function() {return false;} // ie
+            squares.onmousedown = function() {return false;} // mozilla
+          }, 0.0000001);
          
-          
-           board.classList.remove("overlay");
+        
          // clickBlocker.show();
         
 
@@ -186,6 +187,8 @@
                     }
                     // if the loop runs for the full length of a win set, a player possesses a win
                     if (j === winSet.length -1) {
+                  game.winner = 'Player ' + game.getPlayer() + ' is the winner!';
+                  console.log(game.winner);
                   return game.UI("screen screen-win screen-win-" + (game.getPlayer() === 1? "one": "two"), "New Game", "reload", game.getCurrentPlayersName() + " wins!");
               
                        }
