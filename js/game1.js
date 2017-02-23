@@ -64,7 +64,7 @@
         if (buttonLink === "reload") {
         startLink.setAttribute('onClick', 'window.location.reload()');
         } else {
-            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName();}, false);
+            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName(); game.updateBoard(0);}, false);
             startLink.setAttribute('href', buttonLink);
 
         }
@@ -79,12 +79,13 @@
       }
 
     //Update the board at every move
-    Game.prototype.updateBoard = function() {
+    Game.prototype.updateBoard = function(option) {
         //Incrementing the turn counter by one.
-        this.turn++;
+        this.turn ++;
+        
         //Getting the current player's indicator
         var playerIndicator = document.getElementById('player' + this.getPlayer());
-
+            //If the second player is the computer than it's the computer's turn.
              if(game.players.player2 == "COMPUTER" && this.turn % 2 === 0){
             game.computer();
             }
@@ -132,8 +133,8 @@
                 event.target.classList.add('box-filled-' + game.getPlayer());
                 //Push the squares ID in the right array.
                 playerScore.push(parseFloat(event.target.getAttribute('ID')));
-
-                //On every move, perform a winCheck.
+                game.updateBoard();
+                 //On every move, perform a winCheck.
                 game.winCheck(playerScore);
                 console.log(game.turn);
             }
@@ -229,8 +230,6 @@
 
        player1.textContent = game.players.player1;
        player2.textContent = game.players.player2;
-
-        console.log(game.players);
        }
 
 
@@ -248,12 +247,8 @@
 
 
    board.addEventListener("click", function() {
-        game.updateBoard();
         console.log(game.turn);
     }, false);
-
-
-
 
 
     for (var i = 0; i < squares.length; i++) {
