@@ -64,7 +64,7 @@
         if (buttonLink === "reload") {
         startLink.setAttribute('onClick', 'window.location.reload()');
         } else {
-            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName(); game.updateBoard(0);}, false);
+            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName(); game.updateBoard();}, false);
             startLink.setAttribute('href', buttonLink);
 
         }
@@ -79,35 +79,34 @@
       }
 
     //Update the board at every move
-    Game.prototype.updateBoard = function(option) {
-        //Incrementing the turn counter by one.
-        this.turn ++;
-        
+    Game.prototype.updateBoard = function(event) {     
+           //Incrementing the turn counter by one.
+            this.turn++;
         //Getting the current player's indicator
-        var playerIndicator = document.getElementById('player' + this.getPlayer());
-            //If the second player is the computer than it's the computer's turn.
-             if(game.players.player2 == "COMPUTER" && this.turn % 2 === 0){
-            game.computer();
-            }
-                     //If the turn counter is superior to 9 and there is no winner, the game is a draw so we return the 'It's a draw screen'
-              if (game.turn > 9 && game.winner === null){
-                return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
-                }
-
-        
+        var playerIndicator = document.getElementById('player' + this.currentPlayer());
         //Add and removes the classes on the indicator depending on whose turn it is.
-        if (this.getPlayer() === 1) {
+             if (this.currentPlayer() === 1) {
             player2.classList.remove('active');
             playerIndicator.classList.add('active');
-        } else if (this.getPlayer() === 2) {
+        } else if (this.currentPlayer() === 2) {
             player1.classList.remove('active');
             playerIndicator.classList.add('active');
-        }
+         }    
+             
+         //If the second player is the computer than it's the computer's turn.
+          if (game.players.player2 == "COMPUTER" && this.turn % 2 === 0 && game.turn <= 9){
+            game.computer();
+            }
+              //If the turn counter is superior to 9 and there is no winner, the game is a draw so we return the 'It's a draw screen'
+         if (game.turn > 9 && game.winner === null) {
+            return game.UI("screen screen-win screen-win-tie", "New Game", "reload", "It's a draw");
+         }
+          console.log(game.turn);
     };
 
 
     //All box events are handled here.
-    Game.prototype.spaceAction = function(event) {
+    Game.prototype.play = function(event) {
         //Looping through the boxes and assigning an ID to each.
         for (i = 0; i < squares.length; i++) {
             squares[i].setAttribute("ID", parseFloat(1) + parseFloat([i]));
@@ -119,141 +118,117 @@
         //Makes sure the box is empty 
         if (event.target.getAttribute("class").indexOf('box-filled-') === -1 && !event.target.classList.contains('box-filled-')) {
             //Get the current player's array.
-            var playerScore = game.getPlayer() === 1 ? game.array1 : game.array2;
+            var playerScore = game.currentPlayer() === 1 ? game.array1 : game.array2;
             //Listen to the events on the boxes and assign a background-image property on mouseenter.
             if (event.type === "mouseenter") {
-                event.target.style.backgroundImage = 'url(img/' + game.getPlayer(true) + '.svg)';
+                event.target.style.backgroundImage = 'url(img/' + game.currentPlayer(true) + '.svg)';
             } else if (event.type === "mouseleave") {
                 //Remove th ebackgorund image on mouseleave.
                 event.target.style.backgroundImage = '';
-            } else {
+            } else {    
                 //Onclick, set the background-image to the square.
-                event.target.style.backgroundImage = 'url(img/' + game.getPlayer(true) + '.svg)';
+                event.target.style.backgroundImage = 'url(img/' + game.currentPlayer(true) + '.svg)';
                 //Add the class to the space.
-                event.target.classList.add('box-filled-' + game.getPlayer());
+                event.target.classList.add('box-filled-' + game.currentPlayer());
                 //Push the squares ID in the right array.
                 playerScore.push(parseFloat(event.target.getAttribute('ID')));
-                game.updateBoard();
-                 //On every move, perform a winCheck.
+                //On every move, check if a player holds a win.
                 game.winCheck(playerScore);
-                console.log(game.turn);
+                //Update the whole board on every time the user clicks a square.
+                 game.updateBoard();  
+               
             }
           }
      
 
         };
 
-        Game.prototype.computer = function() {
-         board.classList.add("overlay");
+        //Method that acts as a second player if "COMPUTER" is specified.
+         Game.prototype.computer = function() {
+        //Checks for empty spaces.
           var availableSpaces = document.querySelectorAll('.box:not(.box-filled-1):not(.box-filled-2)');
+        //Creates a random index.
           var randomIndex = Math.round(Math.random() * ((availableSpaces.length - 1) - 0) + 0);
+        //Assigns the random Index to the available square and stores it in the space variable.
           var space = availableSpaces[randomIndex];
-          console.log(availableSpaces);
-          console.log(randomIndex);
-          console.log(space);
-                   
-         // var clickBlocker = body.find('.click-blocker');
 
           setTimeout(function(){
-             
-             space.click();
-            /*space.style.backgroundImage = 'url(img/x.svg)';
-            space.classList.add('box-filled-2');*/
-            
-           // clickBlocker.hide();
-            squares.onselectstart = function() {return false;} // ie
-            squares.onmousedown = function() {return false;} // mozilla
-          }, 0.0000001);
-         
-        
-         // clickBlocker.show();
-        
-
+            //Trigger a click on the random space 
+             space.click();     
+          }, 0.01);
         }
-//This property determines if a player holds a win
+
+        //This method loops through the arrays and determines if there's a win.
         Game.prototype.winCheck = function(playerScore) {
 
             //Loop through the winning combinations.
             for (var i = 0; i < game.winSets.length; i++) {
-
-                    var winSet = game.winSets[i];
-
+                var winSet = game.winSets[i];
             for (var j = 0; j < winSet.length; j++) {
-                    //Look for a match in the player's array
+            //Look for a match in the player's array
                 var space = winSet[j];
+            //Looks for a winning combination in the current player's array.
                 var inScore = playerScore.indexOf(space);
-
                     if (inScore === -1) {
                         break;
                     }
-                    // if the loop runs for the full length of a win set, a player possesses a win
+                    //When the loops runs the full way, the current player holds a win.
                     if (j === winSet.length -1) {
-                  game.winner = 'Player ' + game.getPlayer() + ' is the winner!';
-                  console.log(game.winner);
-                  return game.UI("screen screen-win screen-win-" + (game.getPlayer() === 1? "one": "two"), "New Game", "reload", game.getCurrentPlayersName() + " wins!");
-              
-                       }
+                    //Testing
+                     game.winner = 'Player ' + game.currentPlayer() + ' is the winner!';
+                    //Display the win screen
+                    return game.UI("screen screen-win screen-win-" + (game.currentPlayer() === 1? "one": "two"), "New Game", "reload", game.getCurrentPlayersName() + " wins!");
+                     }
                  }
-            }
-      
-       
+            }     
         };
 
-    // helper method for determining player turns
-    Game.prototype.getPlayer = function(myPlayer) {
+    //Determine the current player
+    Game.prototype.currentPlayer = function(myPlayer) {
         var player;
-
-        if (this.turn % 2 !== 0) {
-            player = 1;
-
-        } else {
-            player = 2;
-        }
-
+        //Determine current player number & letter based on the value of this.turn.
+        this.turn % 2 !== 0? player = 1 : player = 2;
         if (myPlayer) {
             return (player === 1) ? 'o' : 'x';
         }
+        //retun the current player.
         return player;
     };
 
-
+    //Method to get the player's name at the beginning of the game.
      Game.prototype.getPlayersName = function() {
+    //Prompt player 1 and player 2 for their name.
+    //Prompt player one for his name. Can't be left blank.
      do {
       var playerName1 = prompt("What's player's one name?");
        game.players.player1 = playerName1;
      } while (!game.players.player1);
 
+     //Prompt player 2 for his name. Can't be left blank. You can have the computer for opponent by typing "COMPUTER"
      do {
       var playerName2 = prompt("What's player's two name? Type 'COMPUTER' to play against the computer");
        game.players.player2 = playerName2;
-     } while (!game.players.player2);
-
+     } while (!game.players.player2 && game.players.player1 === game.players.player2);
+     //Add the players name to an object.
        player1.textContent = game.players.player1;
        player2.textContent = game.players.player2;
-       }
+    }
 
-
+    //Retrive the current player's name depending on current player.
     Game.prototype.getCurrentPlayersName = function() {
-       return game.getPlayer() == 1? game.players.player1 : game.players.player2;
+       return game.currentPlayer() == 1? game.players.player1 : game.players.player2;
     }
 
-
+    //Instantiate a new game.
     game = new Game;
-    /*game.players.push(new Player('o'));
-    game.players.push(new Player('x'));*/
 
-    game.UI("screen screen-start", "Start Game", "#", "");
-
-
-
-   board.addEventListener("click", function() {
-        console.log(game.turn);
-    }, false);
-
-
-    for (var i = 0; i < squares.length; i++) {
-        squares[i].addEventListener("click", game.spaceAction, false);
-        squares[i].addEventListener("mouseenter", game.spaceAction, false);
-        squares[i].addEventListener("mouseleave", game.spaceAction, false);
+    //Add the events listeners to the squares.
+     for (var i = 0; i < squares.length; i++) {
+        squares[i].addEventListener("click", game.play, false);
+        squares[i].addEventListener("mouseenter", game.play, false);
+        squares[i].addEventListener("mouseleave", game.play, false);
     }
+
+        //Display start screen
+    game.UI("screen screen-start", "Start Game", "#", "");
 })();
