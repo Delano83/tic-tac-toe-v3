@@ -64,7 +64,7 @@
         if (buttonLink === "reload") {
         startLink.setAttribute('onClick', 'window.location.reload()');
         } else {
-            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName(); game.updateBoard();}, false);
+            startLink.addEventListener("click", function() { board.removeChild(screenDiv); game.getPlayersName(); game.refreshBoard();}, false);
             startLink.setAttribute('href', buttonLink);
 
         }
@@ -79,7 +79,7 @@
       }
 
     //Update the board at every move
-    Game.prototype.updateBoard = function(event) {     
+    Game.prototype.refreshBoard = function(event) {     
            //Incrementing the turn counter by one.
             this.turn++;
         //Getting the current player's indicator
@@ -135,7 +135,7 @@
                 //On every move, check if a player holds a win.
                 game.winCheck(playerScore);
                 //Update the whole board on every time the user clicks a square.
-                 game.updateBoard();  
+                 game.refreshBoard();  
                
             }
           }
@@ -229,6 +229,7 @@
         squares[i].addEventListener("mouseleave", game.play, false);
     }
 
-        //Display start screen
+   //Display start screen
     game.UI("screen screen-start", "Start Game", "#", "");
+    
 })();
